@@ -3,6 +3,7 @@ from dash import dcc,html
 from dash.dependencies import Input, Output, State
 import pickle
 import numpy as np
+import dash_bootstrap_components as dbc
 
 ########### Define your variables ######
 myheading1='California Housing Dataset'
@@ -20,12 +21,15 @@ with open('analysis/model_components/rmse_fig.pkl', 'rb') as f:
     rmse_fig=pickle.load(f)
 with open('analysis/model_components/std_scaler.pkl', 'rb') as f:
     std_scaler=pickle.load(f)
-with open('analysis/model_components/lin_reg.pkl', 'rb') as f:
-    lin_reg=pickle.load(f)
+with open('analysis/model_components/tree_model.pkl', 'rb') as f:
+    tree_model=pickle.load(f)
 
 ########### Initiate the app
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
-app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
+#app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
+app = dash.Dash(external_stylesheets=[dbc.themes.CYBORG])
+#app = dash.Dash(external_stylesheets=[dbc.themes.MATERIA])
+#app = dash.Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
 server = app.server
 app.title=tabtitle
 
@@ -99,7 +103,7 @@ app.layout = html.Div(children=[
                 ], className='twelve columns'),
 
         html.Div(children=[
-                html.H3('Linear Regression Coefficients (standardized features)'),
+                html.H3('Decision Tree Model Feature Importance (standardized features)'),
                 dcc.Graph(figure=coefs, id='coefs_fig')
                 ], className='twelve columns'),
 
@@ -144,7 +148,7 @@ def make_prediction(clicks, longitude, latitude, housing_median_age, total_rooms
         # standardization
         std_inputs = std_scaler.transform(inputs)
 
-        y = lin_reg.predict(std_inputs)
+        y = tree_model.predict(std_inputs)
         formatted_y = "${:,.2f}".format(y[0])
         return formatted_y
 
